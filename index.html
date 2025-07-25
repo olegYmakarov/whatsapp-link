@@ -11,7 +11,7 @@
       padding: 20px;
       background-color: #f7f7f7;
     }
-    input, textarea {
+    input, textarea, select {
       width: 100%;
       margin-top: 5px;
       margin-bottom: 15px;
@@ -27,33 +27,100 @@
     #output {
       background-color: #e8e8e8;
     }
+    .lang-select {
+      text-align: right;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
-  <h2>Генератор WhatsApp-ссылки</h2>
+  <div class="lang-select">
+    <label for="lang">🌐</label>
+    <select id="lang" onchange="switchLang()">
+      <option value="ru">🇷🇺 Русский</option>
+      <option value="en">🇺🇸 English</option>
+      <option value="he">🇮🇱 עברית</option>
+    </select>
+  </div>
 
-  <label for="number">Номер телефона (цифрами, в любом формате):</label>
-  <input type="text" id="number" placeholder="+333 33 33 33 333">
+  <h2 id="title">Генератор WhatsApp-ссылки</h2>
 
-  <label for="message">Текст сообщения:</label>
+  <label id="phoneLabel" for="number">Номер телефона (в любом формате):</label>
+  <input type="text" id="number" placeholder="+972 55 77 33 457">
+
+  <label id="messageLabel" for="message">Текст сообщения:</label>
   <textarea id="message" rows="6" placeholder="Введите текст сообщения..."></textarea>
 
-  <button onclick="generate()">Сгенерировать ссылку</button>
+  <button onclick="generate()" id="generateBtn">Сгенерировать ссылку</button>
 
-  <label for="output">Результат:</label>
+  <label for="output" id="resultLabel">Результат:</label>
   <input type="text" id="output" readonly>
 
-  <button onclick="copyLink()">Скопировать ссылку</button>
+  <button onclick="copyLink()" id="copyBtn">Скопировать ссылку</button>
   <a id="preview" href="#" target="_blank">Открыть ссылку</a>
 
   <script>
+    const translations = {
+      ru: {
+        title: "Генератор WhatsApp-ссылки",
+        phoneLabel: "Номер телефона (в любом формате):",
+        messageLabel: "Текст сообщения:",
+        generate: "Сгенерировать ссылку",
+        copy: "Скопировать ссылку",
+        open: "Открыть ссылку",
+        result: "Результат:",
+        alertEmpty: "Пожалуйста, заполните оба поля.",
+        alertCopied: "Ссылка скопирована в буфер обмена!",
+        alertError: "Ошибка при копировании."
+      },
+      en: {
+        title: "WhatsApp Link Generator",
+        phoneLabel: "Phone number (any format):",
+        messageLabel: "Message text:",
+        generate: "Generate link",
+        copy: "Copy link",
+        open: "Open link",
+        result: "Result:",
+        alertEmpty: "Please fill in both fields.",
+        alertCopied: "Link copied to clipboard!",
+        alertError: "Copy failed."
+      },
+      he: {
+        title: "מחולל קישורים ל־WhatsApp",
+        phoneLabel: "מספר טלפון (בכל פורמט):",
+        messageLabel: "טקסט ההודעה:",
+        generate: "צור קישור",
+        copy: "העתק קישור",
+        open: "פתח קישור",
+        result: "תוצאה:",
+        alertEmpty: "אנא מלא את שני השדות.",
+        alertCopied: "הקישור הועתק!",
+        alertError: "שגיאה בהעתקה."
+      }
+    };
+
+    let currentLang = "ru";
+
+    function switchLang() {
+      currentLang = document.getElementById("lang").value;
+      const t = translations[currentLang];
+
+      document.getElementById("title").textContent = t.title;
+      document.getElementById("phoneLabel").textContent = t.phoneLabel;
+      document.getElementById("messageLabel").textContent = t.messageLabel;
+      document.getElementById("generateBtn").textContent = t.generate;
+      document.getElementById("copyBtn").textContent = t.copy;
+      document.getElementById("preview").textContent = t.open;
+      document.getElementById("resultLabel").textContent = t.result;
+    }
+
     function generate() {
       const rawNumber = document.getElementById("number").value;
       const number = rawNumber.replace(/\D/g, ''); // оставить только цифры
       const text = document.getElementById("message").value.trim();
 
       if (!number || !text) {
-        alert("Пожалуйста, заполните оба поля.");
+        alert(translations[currentLang].alertEmpty);
         return;
       }
 
@@ -67,10 +134,12 @@
       const link = document.getElementById("output").value;
       if (link) {
         navigator.clipboard.writeText(link)
-          .then(() => alert("Ссылка скопирована в буфер обмена!"))
-          .catch(() => alert("Ошибка при копировании."));
+          .then(() => alert(translations[currentLang].alertCopied))
+          .catch(() => alert(translations[currentLang].alertError));
       }
     }
+
+    window.onload = switchLang;
   </script>
 </body>
 </html>
