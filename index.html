@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Генератор WhatsApp-ссылки</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: #f7f7f7;
+    }
+    input, textarea {
+      width: 100%;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+    #output {
+      background-color: #e8e8e8;
+    }
+  </style>
+</head>
+<body>
+  <h2>Генератор WhatsApp-ссылки</h2>
+
+  <label for="number">Номер телефона (цифрами, в любом формате):</label>
+  <input type="text" id="number" placeholder="+333 33 33 33 333">
+
+  <label for="message">Текст сообщения:</label>
+  <textarea id="message" rows="6" placeholder="Введите текст сообщения..."></textarea>
+
+  <button onclick="generate()">Сгенерировать ссылку</button>
+
+  <label for="output">Результат:</label>
+  <input type="text" id="output" readonly>
+
+  <button onclick="copyLink()">Скопировать ссылку</button>
+  <a id="preview" href="#" target="_blank">Открыть ссылку</a>
+
+  <script>
+    function generate() {
+      const rawNumber = document.getElementById("number").value;
+      const number = rawNumber.replace(/\D/g, ''); // оставить только цифры
+      const text = document.getElementById("message").value.trim();
+
+      if (!number || !text) {
+        alert("Пожалуйста, заполните оба поля.");
+        return;
+      }
+
+      const encodedText = encodeURIComponent(text);
+      const link = `https://wa.me/${number}?text=${encodedText}`;
+      document.getElementById("output").value = link;
+      document.getElementById("preview").href = link;
+    }
+
+    function copyLink() {
+      const link = document.getElementById("output").value;
+      if (link) {
+        navigator.clipboard.writeText(link)
+          .then(() => alert("Ссылка скопирована в буфер обмена!"))
+          .catch(() => alert("Ошибка при копировании."));
+      }
+    }
+  </script>
+</body>
+</html>
