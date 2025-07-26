@@ -4,147 +4,148 @@
   <meta charset="UTF-8">
   <title>Генератор WhatsApp-ссылки</title>
   <style>
-    body {
-      font-family: sans-serif;
-      max-width: 600px;
-      margin: 50px auto;
-      padding: 20px;
-      background-color: #f7f7f7;
-    }
-    input, textarea {
+    body { font-family: sans-serif; background-color: #f9f9f9; padding: 20px; }
+    input, textarea, select, button {
+      margin: 5px 0;
       width: 100%;
-      margin-top: 5px;
-      margin-bottom: 15px;
       padding: 10px;
       font-size: 16px;
     }
-    select {
-      width: 140px;
-      margin-left: 5px;
-      padding: 10px;
-      font-size: 16px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      margin-right: 10px;
-      cursor: pointer;
-    }
-    #output {
-      background-color: #e8e8e8;
-    }
-    .lang-select {
-      text-align: right;
-      margin-bottom: 10px;
-    }
+    button { width: auto; cursor: pointer; }
+    .result-box { background: #fff; border: 1px solid #ccc; padding: 10px; font-family: monospace; }
   </style>
 </head>
 <body>
-  <div class="lang-select">
-    <label for="lang">🌐</label>
-    <select id="lang" onchange="switchLang()">
-      <option value="ru">🇷🇺 Русский</option>
-      <option value="en">🇺🇸 English</option>
-      <option value="he">🇮🇱 עברית</option>
-    </select>
-  </div>
+  <h2>Генератор WhatsApp-ссылки</h2>
 
-  <h2 id="title">Генератор WhatsApp-ссылки</h2>
+  <label for="lang-select">🌐</label>
+  <select id="lang-select">
+    <option value="ru" selected>ru Русский</option>
+    <option value="en">en English</option>
+    <option value="he">he עברית</option>
+  </select><br><br>
 
-  <label id="phoneLabel" for="number">Номер телефона (в любом формате):</label>
-  <input type="text" id="number" placeholder="+333 33 33 33 333">
+  <label for="phone">Номер телефона (в любом формате):</label><br>
+  <input type="text" id="phone" placeholder="+333 33 33 33 333"><br>
 
-  <label id="messageLabel" for="message">Текст сообщения:</label>
-  <textarea id="message" rows="6" placeholder="Введите текст сообщения..."></textarea>
+  <label for="message">Текст сообщения:</label><br>
+  <textarea id="message" rows="4" placeholder="Введите текст сообщения..."></textarea><br>
 
-  <button onclick="generate()" id="generateBtn">Сгенерировать ссылку</button>
+  <button onclick="generateLink()">Сгенерировать ссылку</button>
+  <span>Результат:</span><br>
+  <div class="result-box" id="result"></div><br>
 
-  <label for="output" id="resultLabel">Результат:</label>
-  <input type="text" id="output" readonly>
+  <button onclick="copyLink()">Скопировать ссылку</button>
+  <a href="#" id="openLink" target="_blank">Открыть ссылку</a>
 
-  <button onclick="copyLink()" id="copyBtn">Скопировать ссылку</button>
-  <a id="preview" href="#" target="_blank">Открыть ссылку</a>
+  <hr>
+  <h2 id="calendar-title">📅 Создать событие для календаря</h2>
+
+  <label id="event-title-label" for="event-title">Название события:</label><br>
+  <input type="text" id="event-title" placeholder="Моё событие"><br><br>
+
+  <label id="event-date-label" for="event-date">Дата события:</label><br>
+  <input type="date" id="event-date"><br><br>
+
+  <label id="start-time-label" for="start-time">Время начала:</label><br>
+  <input type="time" id="start-time"><br><br>
+
+  <label id="end-time-label" for="end-time">Время окончания:</label><br>
+  <input type="time" id="end-time"><br><br>
+
+  <button onclick="generateICS()" id="ics-button">Скачать .ics-файл</button>
 
   <script>
-    const translations = {
-      ru: {
-        title: "Генератор WhatsApp-ссылки",
-        phoneLabel: "Номер телефона (в любом формате):",
-        messageLabel: "Текст сообщения:",
-        generate: "Сгенерировать ссылку",
-        copy: "Скопировать ссылку",
-        open: "Открыть ссылку",
-        result: "Результат:",
-        alertEmpty: "Пожалуйста, заполните оба поля.",
-        alertCopied: "Ссылка скопирована в буфер обмена!",
-        alertError: "Ошибка при копировании."
-      },
-      en: {
-        title: "WhatsApp Link Generator",
-        phoneLabel: "Phone number (any format):",
-        messageLabel: "Message text:",
-        generate: "Generate link",
-        copy: "Copy link",
-        open: "Open link",
-        result: "Result:",
-        alertEmpty: "Please fill in both fields.",
-        alertCopied: "Link copied to clipboard!",
-        alertError: "Copy failed."
-      },
-      he: {
-        title: "מחולל קישורים ל־WhatsApp",
-        phoneLabel: "מספר טלפון (בכל פורמט):",
-        messageLabel: "טקסט ההודעה:",
-        generate: "צור קישור",
-        copy: "העתק קישור",
-        open: "פתח קישור",
-        result: "תוצאה:",
-        alertEmpty: "אנא מלא את שני השדות.",
-        alertCopied: "הקישור הועתק!",
-        alertError: "שגיאה בהעתקה."
-      }
-    };
-
-    let currentLang = "ru";
-
-    function switchLang() {
-      currentLang = document.getElementById("lang").value;
-      const t = translations[currentLang];
-      document.getElementById("title").textContent = t.title;
-      document.getElementById("phoneLabel").textContent = t.phoneLabel;
-      document.getElementById("messageLabel").textContent = t.messageLabel;
-      document.getElementById("generateBtn").textContent = t.generate;
-      document.getElementById("copyBtn").textContent = t.copy;
-      document.getElementById("preview").textContent = t.open;
-      document.getElementById("resultLabel").textContent = t.result;
-    }
-
-    function generate() {
-      const rawNumber = document.getElementById("number").value;
-      const number = rawNumber.replace(/\D/g, '');
-      const text = document.getElementById("message").value.trim();
-
-      if (!number || !text) {
-        alert(translations[currentLang].alertEmpty);
-        return;
-      }
-
-      const encodedText = encodeURIComponent(text);
-      const link = `https://wa.me/${number}?text=${encodedText}`;
-      document.getElementById("output").value = link;
-      document.getElementById("preview").href = link;
+    function generateLink() {
+      const phone = document.getElementById("phone").value.replace(/\D/g, "");
+      const message = encodeURIComponent(document.getElementById("message").value);
+      const url = `https://wa.me/${phone}?text=${message}`;
+      document.getElementById("result").textContent = url;
+      document.getElementById("openLink").href = url;
     }
 
     function copyLink() {
-      const link = document.getElementById("output").value;
-      if (link) {
-        navigator.clipboard.writeText(link)
-          .then(() => alert(translations[currentLang].alertCopied))
-          .catch(() => alert(translations[currentLang].alertError));
-      }
+      const text = document.getElementById("result").textContent;
+      navigator.clipboard.writeText(text);
     }
 
-    window.onload = switchLang;
+    function getLang() {
+      const val = document.getElementById("lang-select").value;
+      return val.startsWith("he") ? "he" : val.startsWith("en") ? "en" : "ru";
+    }
+
+    function translateICSLabels() {
+      const lang = getLang();
+      const texts = {
+        ru: {
+          title: "📅 Создать событие для календаря",
+          labelTitle: "Название события:",
+          labelDate: "Дата события:",
+          labelStart: "Время начала:",
+          labelEnd: "Время окончания:",
+          button: "Скачать .ics-файл"
+        },
+        en: {
+          title: "📅 Create calendar event",
+          labelTitle: "Event title:",
+          labelDate: "Event date:",
+          labelStart: "Start time:",
+          labelEnd: "End time:",
+          button: "Download .ics file"
+        },
+        he: {
+          title: "📅 צור אירוע ללו\u05d6",
+          labelTitle: "\u05db\u05d5\u05ea\u05e8\u05ea \u05d4\u05d0\u05d9\u05e8\u05d5\u05e2:",
+          labelDate: "\u05ea\u05d0\u05e8\u05d9\u05da \u05d4\u05d0\u05d9\u05e8\u05d5\u05e2:",
+          labelStart: "\u05e9\u05e2\u05ea \u05d4\u05ea\u05d7\u05dc\u05d4:",
+          labelEnd: "\u05e9\u05e2\u05ea \u05e1\u05d9\u05d5\u05dd:",
+          button: "\u05d4\u05d5\u05e8\u05d3 .ics"
+        }
+      };
+      const t = texts[lang];
+      document.getElementById("calendar-title").textContent = t.title;
+      document.getElementById("event-title-label").textContent = t.labelTitle;
+      document.getElementById("event-date-label").textContent = t.labelDate;
+      document.getElementById("start-time-label").textContent = t.labelStart;
+      document.getElementById("end-time-label").textContent = t.labelEnd;
+      document.getElementById("ics-button").textContent = t.button;
+    }
+
+    document.getElementById("lang-select").addEventListener("change", translateICSLabels);
+    window.onload = translateICSLabels;
+
+    function generateICS() {
+      const titleInput = document.getElementById("event-title").value.trim();
+      const date = document.getElementById("event-date").value;
+      const start = document.getElementById("start-time").value;
+      const end = document.getElementById("end-time").value;
+
+      if (!date || !start || !end) {
+        alert("Пожалуйста, заполните все поля времени и даты.");
+        return;
+      }
+
+      const summary = titleInput || "отложенное сообщение WhatsApp";
+
+      const formatDateTime = (d, t) => {
+        const [y, m, day] = d.split("-");
+        const [h, min] = t.split(":");
+        return `${y}${m}${day}T${h}${min}00`;
+      };
+
+      const dtstart = formatDateTime(date, start);
+      const dtend = formatDateTime(date, end);
+
+      const icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:${summary}\nDTSTART:${dtstart}\nDTEND:${dtend}\nEND:VEVENT\nEND:VCALENDAR`;
+
+      const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "event.ics";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   </script>
 </body>
 </html>
