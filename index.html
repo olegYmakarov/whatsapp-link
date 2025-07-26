@@ -124,13 +124,13 @@
       const formatForGoogle = (d, t) => {
         const [y, m, day] = d.split("-");
         const [h, min] = t.split(":");
-        return `${y}${m}${day}T${h}${min}00Z`;
+        return `${y}${m}${day}T${h}${min}00`;
       };
 
       const startFormatted = formatForGoogle(date, start);
       const endFormatted = formatForGoogle(date, end);
 
-      const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${summary}&dates=${startFormatted}/${endFormatted}&details=${description}`;
+      const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${summary}&dates=${startFormatted}/${endFormatted}&details=${description}&recur=RRULE:FREQ=ONCE&trp=false&reminder=0`;
       window.open(url, '_blank');
     }
   </script>
