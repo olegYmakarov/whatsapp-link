@@ -77,7 +77,8 @@
         result: "Результат:",
         alertEmpty: "Пожалуйста, заполните оба поля.",
         alertCopied: "Ссылка скопирована в буфер обмена!",
-        alertError: "Ошибка при копировании."
+        alertError: "Ошибка при копировании.",
+        alertShortenFail: "Ошибка при сокращении ссылки."
       },
       en: {
         title: "WhatsApp Link Generator",
@@ -89,7 +90,8 @@
         result: "Result:",
         alertEmpty: "Please fill in both fields.",
         alertCopied: "Link copied to clipboard!",
-        alertError: "Copy failed."
+        alertError: "Copy failed.",
+        alertShortenFail: "Link shortening failed."
       },
       he: {
         title: "מחולל קישורים ל־WhatsApp",
@@ -101,7 +103,8 @@
         result: "תוצאה:",
         alertEmpty: "אנא מלא את שני השדות.",
         alertCopied: "הקישור הועתק!",
-        alertError: "שגיאה בהעתקה."
+        alertError: "שגיאה בהעתקה.",
+        alertShortenFail: "שגיאה בקיצור הקישור."
       }
     };
 
@@ -110,7 +113,6 @@
     function switchLang() {
       currentLang = document.getElementById("lang").value;
       const t = translations[currentLang];
-
       document.getElementById("title").textContent = t.title;
       document.getElementById("phoneLabel").textContent = t.phoneLabel;
       document.getElementById("messageLabel").textContent = t.messageLabel;
@@ -120,9 +122,16 @@
       document.getElementById("resultLabel").textContent = t.result;
     }
 
-    function generate() {
+    async function shortenLink(longUrl) {
+      const encodedUrl = encodeURIComponent(longUrl);
+      const response = await fetch(`https://is.gd/create.php?format=simple&url=${encodedUrl}`);
+      if (!response.ok) throw new Error("Shorten failed");
+      return await response.text();
+    }
+
+    async function generate() {
       const rawNumber = document.getElementById("number").value;
-      const number = rawNumber.replace(/\D/g, ''); // оставить только цифры
+      const number = rawNumber.replace(/\D/g, '');
       const text = document.getElementById("message").value.trim();
 
       if (!number || !text) {
@@ -131,9 +140,17 @@
       }
 
       const encodedText = encodeURIComponent(text);
-      const link = `https://wa.me/${number}?text=${encodedText}`;
-      document.getElementById("output").value = link;
-      document.getElementById("preview").href = link;
+      const longLink = `https://wa.me/${number}?text=${encodedText}`;
+
+      try {
+        const shortLink = await shortenLink(longLink);
+        document.getElementById("output").value = shortLink;
+        document.getElementById("preview").href = shortLink;
+      } catch {
+        alert(translations[currentLang].alertShortenFail);
+        document.getElementById("output").value = longLink;
+        document.getElementById("preview").href = longLink;
+      }
     }
 
     function copyLink() {
