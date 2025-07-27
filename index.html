@@ -2,23 +2,22 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Генератор WhatsApp-ссылки v8.1</title>
+  <title>Генератор WhatsApp-ссылки v8.2</title>
   <style>
     body { font-family: sans-serif; background-color: #f9f9f9; padding: 20px; }
-    input, textarea, select { width: 25%; } /* выбор языка */
-     button {
-      margin: 5px 0;
+    select {
+      width: 180px;
+    }
+    input, textarea {
       width: 100%;
       padding: 10px;
       font-size: 16px;
     }
-    button { width: auto; cursor: pointer; }
-    .result-box {
-      background: #fff;
-      border: 1px solid #ccc;
+    button {
+      margin: 5px 0;
       padding: 10px;
-      font-family: monospace;
-      word-break: break-all;
+      font-size: 16px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -38,24 +37,21 @@
   <label for="message">Текст сообщения:</label><br>
   <textarea id="message" rows="4" placeholder="Введите текст сообщения..."></textarea><br>
 
-  <button onclick="generateLink()">Сгенерировать ссылку</button>
-  <span>Результат:</span><br>
-  <div class="result-box" id="result"></div><br>
-
-  <button onclick="copyLink()">Скопировать ссылку</button>
+  <button onclick="createAndCopyLink()">Создать и скопировать ссылку</button><br>
+  <span id="status" style="color: green; font-weight: bold;"></span>
 
   <script>
-    function generateLink() {
-      const phone = document.getElementById("phone").value.replace(/\\D/g, "");
+    function createAndCopyLink() {
+      const phone = document.getElementById("phone").value.replace(/\D/g, "");
       const message = encodeURIComponent(document.getElementById("message").value);
+      if (!phone) return;
       const url = `https://wa.me/${phone}?text=${message}`;
-      document.getElementById("result").textContent = url;
-    }
-
-    function copyLink() {
-      const text = document.getElementById("result").textContent;
-      if (!text) return;
-      navigator.clipboard.writeText(text);
+      navigator.clipboard.writeText(url).then(() => {
+        document.getElementById("status").textContent = "Ссылка создана!";
+        setTimeout(() => {
+          document.getElementById("status").textContent = "";
+        }, 3000);
+      });
     }
   </script>
 </body>
