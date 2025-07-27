@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Генератор WhatsApp-ссылки v8.3</title>
+  <title>Генератор WhatsApp-ссылки v8.4</title>
   <style>
     body { font-family: sans-serif; background-color: #f9f9f9; padding: 20px; }
     select {
@@ -22,7 +22,7 @@
   </style>
 </head>
 <body>
-  <h2>Генератор WhatsApp-ссылки v8.2</h2>
+  <h2>Генератор WhatsApp-ссылки v8.3</h2>
 
   <label for="lang-select">🌐</label>
   <select id="lang-select">
@@ -64,6 +64,44 @@
         }, 3000);
       });
     }
+  function translateInterface() {
+      const lang = document.getElementById("lang-select").value;
+      const dict = {
+        ru: {
+          title: "Генератор WhatsApp-ссылки v8.3",
+          phone: "Номер телефона (в любом формате):",
+          message: "Текст сообщения:",
+          button: "Создать и скопировать ссылку",
+          open: "Открыть ссылку",
+          created: "Ссылка создана!"
+        },
+        en: {
+          title: "WhatsApp Link Generator v8.3",
+          phone: "Phone number (any format):",
+          message: "Message text:",
+          button: "Create and copy link",
+          open: "Open link",
+          created: "Link created!"
+        },
+        he: {
+          title: "מחולל קישור WhatsApp v8.3",
+          phone: "מספר טלפון (בכל פורמט):",
+          message: "תוכן ההודעה:",
+          button: "צור והעתק קישור",
+          open: "פתח קישור",
+          created: "הקישור נוצר!"
+        }
+      };
+      const t = dict[lang] || dict.ru;
+      document.querySelector("h2").textContent = t.title;
+      document.querySelector("label[for='phone']").textContent = t.phone;
+      document.querySelector("label[for='message']").textContent = t.message;
+      document.querySelector("button[onclick='createAndCopyLink()']").textContent = t.button;
+      document.querySelector("button[onclick='openLink()']").textContent = t.open;
+    }
+
+    document.getElementById("lang-select").addEventListener("change", translateInterface);
+    window.onload = translateInterface;
   </script>
 </body>
 </html>
