@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Генератор WhatsApp-ссылки v8.2</title>
+  <title>Генератор WhatsApp-ссылки v8.3</title>
   <style>
     body { font-family: sans-serif; background-color: #f9f9f9; padding: 20px; }
     select {
@@ -37,15 +37,26 @@
   <label for="message">Текст сообщения:</label><br>
   <textarea id="message" rows="4" placeholder="Введите текст сообщения..."></textarea><br>
 
-  <button onclick="createAndCopyLink()">Создать и скопировать ссылку</button><br>
+  <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+  <button onclick="createAndCopyLink()">Создать и скопировать ссылку</button>
+  <button onclick="openLink()">Открыть ссылку</button>
+</div><br>
   <span id="status" style="color: green; font-weight: bold;"></span>
 
   <script>
+    let lastGeneratedLink = "";
+
+    function openLink() {
+      if (lastGeneratedLink) {
+        window.open(lastGeneratedLink, '_blank');
+      }
+    }
     function createAndCopyLink() {
       const phone = document.getElementById("phone").value.replace(/\D/g, "");
       const message = encodeURIComponent(document.getElementById("message").value);
       if (!phone) return;
       const url = `https://wa.me/${phone}?text=${message}`;
+      lastGeneratedLink = url;
       navigator.clipboard.writeText(url).then(() => {
         document.getElementById("status").textContent = "Ссылка создана!";
         setTimeout(() => {
