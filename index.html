@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Генератор WhatsApp-ссылки + Google Calendar</title>
+  <title>Генератор WhatsApp-ссылки</title>
   <style>
     body { font-family: sans-serif; background-color: #f9f9f9; padding: 20px; }
     input, textarea, select, button {
@@ -12,7 +12,13 @@
       font-size: 16px;
     }
     button { width: auto; cursor: pointer; }
-    .result-box { background: #fff; border: 1px solid #ccc; padding: 10px; font-family: monospace; }
+    .result-box {
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 10px;
+      font-family: monospace;
+      word-break: break-all;
+    }
   </style>
 </head>
 <body>
@@ -37,23 +43,9 @@
 
   <button onclick="copyLink()">Скопировать ссылку</button>
 
-  <hr>
-  <h2 id="calendar-title">📅 Добавить событие в Google Календарь</h2>
-
-  <label id="event-date-label" for="event-date">Дата события:</label><br>
-  <input type="date" id="event-date"><br><br>
-
-  <label id="start-time-label" for="start-time">Время начала:</label><br>
-  <input type="time" id="start-time"><br><br>
-
-  <label id="end-time-label" for="end-time">Время окончания:</label><br>
-  <input type="time" id="end-time"><br><br>
-
-  <button onclick="createGoogleCalendarEvent()" id="calendar-button">Создать событие</button>
-
   <script>
     function generateLink() {
-      const phone = document.getElementById("phone").value.replace(/\D/g, "");
+      const phone = document.getElementById("phone").value.replace(/\\D/g, "");
       const message = encodeURIComponent(document.getElementById("message").value);
       const url = `https://wa.me/${phone}?text=${message}`;
       document.getElementById("result").textContent = url;
@@ -61,77 +53,8 @@
 
     function copyLink() {
       const text = document.getElementById("result").textContent;
+      if (!text) return;
       navigator.clipboard.writeText(text);
-    }
-
-    function getLang() {
-      const val = document.getElementById("lang-select").value;
-      return val.startsWith("he") ? "he" : val.startsWith("en") ? "en" : "ru";
-    }
-
-    function translateICSLabels() {
-      const lang = getLang();
-      const texts = {
-        ru: {
-          title: "📅 Добавить событие в Google Календарь",
-          labelDate: "Дата события:",
-          labelStart: "Время начала:",
-          labelEnd: "Время окончания:",
-          button: "Создать событие"
-        },
-        en: {
-          title: "📅 Add event to Google Calendar",
-          labelDate: "Event date:",
-          labelStart: "Start time:",
-          labelEnd: "End time:",
-          button: "Create event"
-        },
-        he: {
-          title: "📅 הוסף אירוע ללוח השנה של גוגל",
-          labelDate: "תאריך האירוע:",
-          labelStart: "שעת התחלה:",
-          labelEnd: "שעת סיום:",
-          button: "צור אירוע"
-        }
-      };
-      const t = texts[lang];
-      document.getElementById("calendar-title").textContent = t.title;
-      document.getElementById("event-date-label").textContent = t.labelDate;
-      document.getElementById("start-time-label").textContent = t.labelStart;
-      document.getElementById("end-time-label").textContent = t.labelEnd;
-      document.getElementById("calendar-button").textContent = t.button;
-    }
-
-    document.getElementById("lang-select").addEventListener("change", translateICSLabels);
-    window.onload = translateICSLabels;
-
-    function createGoogleCalendarEvent() {
-      const date = document.getElementById("event-date").value;
-      const start = document.getElementById("start-time").value;
-      const end = document.getElementById("end-time").value;
-      const phone = document.getElementById("phone").value.replace(/\D/g, "");
-      const msg = encodeURIComponent(document.getElementById("message").value);
-
-      if (!date || !start || !end || !phone) {
-        alert("Пожалуйста, заполните номер, дату и время.");
-        return;
-      }
-
-      const summary = encodeURIComponent("отправить сообщение WA");
-      const link = `https://wa.me/${phone}?text=${msg}`;
-      const description = encodeURIComponent("Ссылка для отправки:\n" + link);
-
-      const formatForGoogle = (d, t) => {
-        const [y, m, day] = d.split("-");
-        const [h, min] = t.split(":");
-        return `${y}${m}${day}T${h}${min}00`;
-      };
-
-      const startFormatted = formatForGoogle(date, start);
-      const endFormatted = formatForGoogle(date, end);
-
-      const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${summary}&dates=${startFormatted}/${endFormatted}&details=${description}&recur=RRULE:FREQ=ONCE&trp=false&reminder=0`;
-      window.open(url, '_blank');
     }
   </script>
 </body>
