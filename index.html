@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Генератор WhatsApp-ссылки v8.4</title>
+  <title>Генератор WhatsApp-ссылки v8.5</title>
   <style>
     body { font-family: sans-serif; background-color: #f9f9f9; padding: 20px; }
     select {
@@ -22,7 +22,7 @@
   </style>
 </head>
 <body>
-  <h2>Генератор WhatsApp-ссылки v8.3</h2>
+  <h2>Генератор WhatsApp-ссылки v8.5</h2>
 
   <label for="lang-select">🌐</label>
   <select id="lang-select">
@@ -38,19 +38,15 @@
   <textarea id="message" rows="4" placeholder="Введите текст сообщения..."></textarea><br>
 
   <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-  <button onclick="createAndCopyLink()">Создать и скопировать ссылку</button>
-  <button onclick="openLink()">Открыть ссылку</button>
-</div><br>
+    <button onclick="createAndCopyLink()">Создать и скопировать ссылку</button>
+    <button onclick="createAndOpenLink()">Создать и открыть ссылку</button>
+  </div><br>
+
   <span id="status" style="color: green; font-weight: bold;"></span>
 
   <script>
     let lastGeneratedLink = "";
 
-    function openLink() {
-      if (lastGeneratedLink) {
-        window.open(lastGeneratedLink, '_blank');
-      }
-    }
     function createAndCopyLink() {
       const phone = document.getElementById("phone").value.replace(/\D/g, "");
       const message = encodeURIComponent(document.getElementById("message").value);
@@ -64,31 +60,41 @@
         }, 3000);
       });
     }
-  function translateInterface() {
+
+    function createAndOpenLink() {
+      const phone = document.getElementById("phone").value.replace(/\D/g, "");
+      const message = encodeURIComponent(document.getElementById("message").value);
+      if (!phone) return;
+      const url = `https://wa.me/${phone}?text=${message}`;
+      lastGeneratedLink = url;
+      window.open(url, '_blank');
+    }
+
+    function translateInterface() {
       const lang = document.getElementById("lang-select").value;
       const dict = {
         ru: {
-          title: "Генератор WhatsApp-ссылки v8.3",
+          title: "Генератор WhatsApp-ссылки v8.5",
           phone: "Номер телефона (в любом формате):",
           message: "Текст сообщения:",
           button: "Создать и скопировать ссылку",
-          open: "Открыть ссылку",
+          open: "Создать и открыть ссылку",
           created: "Ссылка создана!"
         },
         en: {
-          title: "WhatsApp Link Generator v8.3",
+          title: "WhatsApp Link Generator v8.5",
           phone: "Phone number (any format):",
           message: "Message text:",
           button: "Create and copy link",
-          open: "Open link",
+          open: "Create and open link",
           created: "Link created!"
         },
         he: {
-          title: "מחולל קישור WhatsApp v8.3",
+          title: "מחולל קישור WhatsApp v8.5",
           phone: "מספר טלפון (בכל פורמט):",
           message: "תוכן ההודעה:",
           button: "צור והעתק קישור",
-          open: "פתח קישור",
+          open: "צור ופתח קישור",
           created: "הקישור נוצר!"
         }
       };
@@ -97,7 +103,7 @@
       document.querySelector("label[for='phone']").textContent = t.phone;
       document.querySelector("label[for='message']").textContent = t.message;
       document.querySelector("button[onclick='createAndCopyLink()']").textContent = t.button;
-      document.querySelector("button[onclick='openLink()']").textContent = t.open;
+      document.querySelector("button[onclick='createAndOpenLink()']").textContent = t.open;
     }
 
     document.getElementById("lang-select").addEventListener("change", translateInterface);
